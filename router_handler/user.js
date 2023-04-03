@@ -45,6 +45,7 @@ exports.regUser = (req, res) => {
 }
 // 登录的处理函数
 exports.login = (req, res) => {
+    console.log(req.body);
     // 接收表单数据：
     const userinfo = req.body;
     // 定义 SQL 语句：
@@ -54,13 +55,14 @@ exports.login = (req, res) => {
         // 执行 SQL 语句失败
         if (err) return res.cc(err)
         // 执行 SQL 语句成功，但是查询到数据条数不等于 1
-        if (results.length !== 1) return res.cc('登录失败！')
+        console.log(results);
+        if (results.length !== 1) return res.cc('登录失败,无此账号！')
         // TODO：判断用户输入的登录密码是否和数据库中的密码一致
         // 拿着用户输入的密码,和数据库中存储的密码进行对比
         const compareResult = bcrypt.compareSync(userinfo.password, results[0].password)
         // 如果对比的结果等于 false, 则证明用户输入的密码错误
         if (!compareResult) {
-            return res.cc('登录失败！')
+            return res.cc('登录失败,密码错误！')
         }
         // TODO：登录成功，生成 Token 字符串
         // 剔除完毕之后，user 中只保留了用户的 id, username, nickname, email 这四个属性的值

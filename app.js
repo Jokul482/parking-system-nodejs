@@ -4,6 +4,7 @@ const express = require('express');
 const app = express();
 // 捕获验证
 const joi = require('joi')
+const bodyParser = require('body-parser');
 
 // 导入 cors 中间件
 const cors = require('cors');
@@ -11,7 +12,9 @@ const cors = require('cors');
 app.use(cors());
 
 // 配置解析表单数据的中间件，注意：这个中间件，只能解析 application/x-www-form-urlencoded 格式的表单数据
-app.use(express.urlencoded({ extended: false }))
+// app.use(express.urlencoded({ extended: false }))
+
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // 导入配置文件
 const config = require('./config')
@@ -47,6 +50,7 @@ app.use('/my', userinfoRouter)
 
 // 错误中间件
 app.use(function (err, req, res, next) {
+    console.log(err);
     // 数据验证失败
     if (err instanceof joi.ValidationError) return res.cc(err)
     // 捕获身份认证失败的错误
