@@ -35,7 +35,7 @@ exports.add_userinfo_schema = {
 	body: {
 		role_type,
 		username,
-		password
+		password,
 	},
 }
 // 验证规则对象 - 更新用户基本信息

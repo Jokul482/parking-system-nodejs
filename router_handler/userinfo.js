@@ -11,7 +11,7 @@ exports.getUserList = (req, res) => {
     // 注意：为了防止用户的密码泄露，需要排除 password 字段  like `+"'%"+"?"+"%'"
     const { role_type, username } = req.query;
     let sql =
-        "select role_type, username, nickname, email, user_pic from ev_users where is_delete=0";
+        "select id, role_type, username, nickname, email, user_pic from ev_users where is_delete=0";
     if (username && role_type) {
         sql += ` and username like concat('%',${username},'%') and role_type=${role_type}`;
     } else if (username) {
@@ -37,7 +37,7 @@ exports.getUserList = (req, res) => {
 exports.getUserInfo = (req, res) => {
     // 根据用户的 id，查询用户的基本信息
     // 注意：为了防止用户的密码泄露，需要排除 password 字段
-    const sql = `select id, username, nickname, email, user_pic from ev_users where id=?`;
+    const sql = `select id, role_type, username, nickname, email, user_pic from ev_users where id=?`;
     // 注意：req 对象上的 user 属性，是 Token 解析成功，express-jwt 中间件帮我们挂载上去的
     db.query(sql, req.user.id, (err, results) => {
         // 1. 执行 SQL 语句失败
