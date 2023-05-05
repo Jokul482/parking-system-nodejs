@@ -45,7 +45,6 @@ exports.regUser = (req, res) => {
 }
 // 登录的处理函数
 exports.login = (req, res) => {
-    console.log(req.body);
     // 接收表单数据：
     const userinfo = req.body;
     // 定义 SQL 语句：
@@ -55,7 +54,6 @@ exports.login = (req, res) => {
         // 执行 SQL 语句失败
         if (err) return res.cc(err)
         // 执行 SQL 语句成功，但是查询到数据条数不等于 1
-        console.log(results);
         if (results.length !== 1) return res.cc('登录失败,无此账号！')
         // TODO：判断用户输入的登录密码是否和数据库中的密码一致
         // 拿着用户输入的密码,和数据库中存储的密码进行对比
@@ -76,6 +74,7 @@ exports.login = (req, res) => {
             message: '登录成功！',
             // 为了方便客户端使用 Token，在服务器端直接拼接上 Bearer 的前缀
             token: 'Bearer ' + tokenStr,
+            roleType: results[0].role_type
         })
     })
 }

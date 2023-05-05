@@ -14,7 +14,8 @@ const {
     update_avatar_schema
 } = require('../schema/user') 
 
-
+// 用户列表
+router.get('/getUserList', userinfo_handler.getUserList)
 // 获取用户的基本信息
 router.get('/userinfo', userinfo_handler.getUserInfo)
 // 更新用户的基本信息

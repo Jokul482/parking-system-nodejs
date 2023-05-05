@@ -5,6 +5,24 @@ const db = require('../db/index')
 // compareSync() 函数的返回值为布尔值，true 表示密码正确，false 表示密码错误
 const bcrypt = require('bcryptjs')
 
+// 用户列表的处理函数
+exports.getUserList = (req, res) => {
+    // 根据用户的角色类型及用户名，查询所有用户信息
+    // 注意：为了防止用户的密码泄露，需要排除 password 字段
+    const sql = `select role_type, username, nickname, email, user_pic from ev_users`
+    db.query(sql, [req.user.role_type, req.user.username], (err, results) => {
+        // 1. 执行 SQL 语句失败
+        if (err) return res.cc(err)
+        // 2. 执行 SQL 语句成功，但是查询到的数据条数不等于 1
+        if (results.length === 0) return res.cc('未找到用户列表数据！')
+        // 3. 将用户信息响应给客户端
+        res.send({
+            status: 0,
+            message: '获取成功！',
+            data: results,
+        })
+    })
+}
 // 获取用户基本信息的处理函数
 exports.getUserInfo = (req, res) => {
     // 根据用户的 id，查询用户的基本信息
