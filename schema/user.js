@@ -13,11 +13,11 @@ const joi = require('joi')
 const username = joi.string().alphanum().min(1).max(10).required()
 // 密码的验证规则
 const password = joi.string().pattern(/^[\S]{6,12}$/).required()
-
+// 角色类型验证规则
+const role_type = joi.string().required()
 // 定义 id, nickname, emial 的验证规则
 const id = joi.number().integer().min(1).required()
-const nickname = joi.string().required()
-const email = joi.string().email().required()
+const email = joi.string().email()
 // dataUri() 指的是如下格式的字符串数据：
 // data:image/png;base64,VE9PTUFOWVNFQ1JFVFM=
 const avatar = joi.string().dataUri().required()
@@ -30,12 +30,21 @@ exports.reg_login_schema = {
 		password,
 	},
 }
+// 验证规则对象 - 添加用户基本信息
+exports.add_userinfo_schema = {
+	body: {
+		role_type,
+		username,
+		password
+	},
+}
 // 验证规则对象 - 更新用户基本信息
 exports.update_userinfo_schema = {
 	body: {
 		id,
-		nickname,
-		email,
+		role_type,
+		username,
+		password
 	},
 }
 // 验证规则对象 - 重置密码

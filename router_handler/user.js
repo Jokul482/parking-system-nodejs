@@ -11,10 +11,9 @@ const config = require('../config')
 exports.regUser = (req, res) => {
     // 获取客户端提交到服务器的用户信息
     const userInfo = req.body;
+    if(!userInfo.role_type) return res.send({ status: 1, message: '未选择角色类型' })
     // 对表单中数据，进行合法性的校验
-    if (!userInfo.username || !userInfo.password) {
-        return res.send({ status: 1, message: '用户名或密码不合法' })
-    }
+    if (!userInfo.username || !userInfo.password) return res.send({ status: 1, message: '用户名或密码不合法' })
 
     // 定义 SQL 语句，查询用户名是否被占用
     const sqlStr = 'select * from ev_users where username=?';
@@ -33,7 +32,13 @@ exports.regUser = (req, res) => {
         // 对用户的密码,进行 bcrype 加密，返回值是加密之后的密码字符串
         userInfo.password = bcrypt.hashSync(userInfo.password, 10);
         // 调用 db.query() 执行 sql 语句
-        db.query(sql, { username: userInfo.username, password: userInfo.password }, (err, results) => {
+        db.query(sql, { 
+            role_type: userInfo.role_type,
+            username: userInfo.username, 
+            password: userInfo.password,
+            nickname: userInfo.nickname,
+            email: userInfo.email,
+         }, (err, results) => {
             // 判断 sql 语句是否执行成功
             if (err) return res.cc(err);
             // 判断影响行数是否为 1
