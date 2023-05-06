@@ -17,7 +17,7 @@ exports.getArticleCates = (req, res) => {
     });
 };
 
-// h获取文章分类的处理函数
+// 获取文章分类的处理函数
 exports.addArticleCates = (req, res) => {
     // 1. 定义查重的 SQL 语句
     const sql = `select * from ev_article_cate where name=? or alias=?`;

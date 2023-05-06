@@ -20,6 +20,8 @@ router.get('/getUserList', userinfo_handler.getUserList)
 router.get('/getUserInfo', userinfo_handler.getUserInfo)
 // 更新用户的基本信息
 router.post('/updateUserInfo', expressJoi(update_userinfo_schema), userinfo_handler.updateUserInfo)
+// 删除用户
+router.get('/deleteUser/:id', userinfo_handler.deleteUser)
 // 重置密码的路由
 router.post('/updatepwd', expressJoi(update_password_schema), userinfo_handler.updatePassword)
 // 更新用户头像的路由

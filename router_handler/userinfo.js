@@ -68,6 +68,17 @@ exports.updateUserInfo = (req, res) => {
         return res.cc("修改用户基本信息成功！", 0);
     });
 };
+// 删除用户
+exports.deleteUser = (req, res) => {
+    // 定义标记删除的 SQL 语句
+    const sql = 'update ev_users set is_delete=1 where id=?'
+    // 调用 db.query() 执行 SQL 语句
+    db.query(sql, req.params.id, (err, results) => {
+        if (err) return res.cc(err);
+        if (results.affectedRows !== 1) return res.cc('删除失败！');
+        res.cc('删除成功！', 0)
+    })
+}
 // 重置密码的处理函数
 exports.updatePassword = (req, res) => {
     // 定义根据 id 查询用户数据的 SQL 语句
