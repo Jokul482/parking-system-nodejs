@@ -51,6 +51,10 @@ app.use('/my', userinfoRouter)
 const artCateRouter = require('./router/artcate')
 app.use('/my/article', artCateRouter);
 
+// 导入并使用车辆管理的路由模块
+const vehicleRouter = require('./router/registration')
+app.use('/vehicle', vehicleRouter);
+
 
 // 错误中间件
 app.use(function (err, req, res, next) {
