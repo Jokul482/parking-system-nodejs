@@ -10,9 +10,13 @@ const expressJoi = require('@escook/express-joi')
 // const {  } = require('../schema/access')
 // 获取车辆列表数据的路由
 router.get("/getRegistrationList", registerHandler.getVehicleRegistrationList)
-// 获取车位数据的路由
+// 获取车位列表数据的路由
 router.get("/getVehicleInfo", registerHandler.getVehicleInfo)
 // 新增车辆登记数据的路由
 router.post("/postAddVehicle", registerHandler.postAddVehicle)
+// 获取某个车辆登记数据的路由
+router.get("/getRegistrationInfo", registerHandler.getRegistrationInfo)
+// 更新车辆登记数据的路由
+router.post("/postRegistrationInfo", registerHandler.postRegistrationInfo)
 
 module.exports = router

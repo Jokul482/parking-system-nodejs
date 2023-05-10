@@ -40,7 +40,7 @@ exports.getVehicleRegistrationList = (req, res) => {
     });
 }
 
-// 获取车位的处理函数
+// 获取车位列表的处理函数
 exports.getVehicleInfo = (req, res) => {
     const sql = `select id, carNumber from vehicle where is_delete=0`;
     // res.send(req.query)
@@ -80,9 +80,41 @@ exports.postAddVehicle = (req, res) => {
             // 判断 sql 语句是否执行成功
             if (err) return res.cc(err);
             // 判断影响行数是否为 1
-            if (results.affectedRows !== 1) return res.cc('添加车辆失败，请稍后再试！');
+            if (results.affectedRows !== 1) return res.cc('添加失败，请稍后再试！');
             // 注册用户成功
             res.cc('添加成功！', 0);
         })
     })
+}
+
+// 获取车辆的处理函数
+exports.getRegistrationInfo = (req, res) => {
+    // 根据用户的 id，查询车辆的基本信息
+    const sql = `select * from access where id=?`;
+    // const sql = `select id, plateNumber, carNumber, ownerName, phone, type, exittime from access where id=?`;
+    db.query(sql, req.query.id, (err, results) => {
+        // 1. 执行 SQL 语句失败
+        if (err) return res.cc(err);
+        // 2. 执行 SQL 语句成功，但是查询到的数据条数不等于 1
+        if (results.length !== 1) return res.cc("获取失败！");
+        // 3. 将用户信息响应给客户端
+        res.send({
+            status: 0,
+            message: "获取成功！",
+            data: results[0],
+        });
+    });
+}
+
+// 更新车辆的处理函数
+exports.postRegistrationInfo = (req, res) => {
+    const sql = `update access set ? where id=?`;
+    db.query(sql, [req.body, req.body.id], (err, results) => {
+        // 执行 SQL 语句失败
+        if (err) return res.cc(err);
+        // 执行 SQL 语句成功，但影响行数不为 1
+        if (results.affectedRows !== 1) return res.cc("修改失败！");
+        // 修改用户信息成功
+        return res.cc("修改成功！", 0);
+    });
 }
