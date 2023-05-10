@@ -52,8 +52,12 @@ const artCateRouter = require('./router/artcate')
 app.use('/my/article', artCateRouter);
 
 // 导入并使用车辆管理的路由模块
-const vehicleRouter = require('./router/registration')
-app.use('/vehicle', vehicleRouter);
+const accessRouter = require('./router/access')
+app.use('/my/access', accessRouter);
+
+// 导入并使用车位管理的路由模块
+const vehicleRouter = require('./router/vehicle')
+app.use('/my/vehicle', vehicleRouter);
 
 
 // 错误中间件
