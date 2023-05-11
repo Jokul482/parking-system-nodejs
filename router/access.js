@@ -18,5 +18,7 @@ router.post("/postAddVehicle", registerHandler.postAddVehicle)
 router.get("/getRegistrationInfo", registerHandler.getRegistrationInfo)
 // 更新车辆登记数据的路由
 router.post("/postRegistrationInfo", registerHandler.postRegistrationInfo)
+// 删除车辆登记数据的路由
+router.post("/deleteRegistration/:id", registerHandler.deleteRegistration)
 
 module.exports = router

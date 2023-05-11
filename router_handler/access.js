@@ -108,13 +108,40 @@ exports.getRegistrationInfo = (req, res) => {
 
 // 更新车辆的处理函数
 exports.postRegistrationInfo = (req, res) => {
+    // 获取客户端提交到服务器的车辆信息
+    const carInfo = req.body;
+    // 定义 SQL 语句，查询车牌号是否正在停车
+    const sqlStr = 'select * from access where carNumber=?';
+    // 定义更新车辆的 sql 语句
     const sql = `update access set ? where id=?`;
-    db.query(sql, [req.body, req.body.id], (err, results) => {
-        // 执行 SQL 语句失败
+    db.query(sqlStr, carInfo.carNumber, (err, results) => {
+        // 执行 sql 语句失败
+        if (err) {
+            return res.cc(err);
+        }
+        // 判断车牌号是否被占用
+        if (results.length > 1) {
+            return res.cc('该车位已使用，请选择其它车位！')
+        }
+        db.query(sql, [req.body, req.body.id], (err, results) => {
+            // 执行 SQL 语句失败
+            if (err) return res.cc(err);
+            // 执行 SQL 语句成功，但影响行数不为 1
+            if (results.affectedRows !== 1) return res.cc("修改失败！");
+            // 修改用户信息成功
+            return res.cc("修改成功！", 0);
+        });
+    })
+}
+
+// 删除车辆的处理函数
+exports.deleteRegistration = (req, res) => {
+    // 定义标记删除的 SQL 语句
+    const sql = 'update access set is_delete=1 where id=?'
+    // 调用 db.query() 执行 SQL 语句
+    db.query(sql, req.params.id, (err, results) => {
         if (err) return res.cc(err);
-        // 执行 SQL 语句成功，但影响行数不为 1
-        if (results.affectedRows !== 1) return res.cc("修改失败！");
-        // 修改用户信息成功
-        return res.cc("修改成功！", 0);
-    });
+        if (results.affectedRows !== 1) return res.cc('删除失败！');
+        res.cc('删除成功！', 0)
+    })
 }
