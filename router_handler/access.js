@@ -33,7 +33,7 @@ exports.getVehicleRegistrationList = (req, res) => {
             // 3. 将用户信息响应给客户端
             res.send({
                 status: 0,
-                message: "获取成功！",
+                message: sql,
                 data: results1
             });
         })
@@ -63,17 +63,17 @@ exports.postAddVehicle = (req, res) => {
     // 获取客户端提交到服务器的车辆信息
     const carInfo = req.body;
     // 定义 SQL 语句，查询车牌号是否正在停车
-    const sqlStr = 'select * from access where plateNumber=?';
+    const sqlStr = 'select * from access where carNumber=?';
     // 定义插入车辆的 sql 语句
     const sql = 'insert into access set ?'
-    db.query(sqlStr, carInfo.plateNumber, (err, results) => {
+    db.query(sqlStr, carInfo.carNumber, (err, results) => {
         // 执行 sql 语句失败
         if (err) {
             return res.cc(err);
         }
         // 判断车牌号是否被占用
         if (results.length > 0) {
-            return res.cc('不能重复登记车牌号！')
+            return res.cc('该车位已使用，请选择其它车位！')
         }
         // 调用 db.query() 执行 sql 语句
         db.query(sql, carInfo, (err, results) => {
@@ -144,4 +144,61 @@ exports.deleteRegistration = (req, res) => {
         if (results.affectedRows !== 1) return res.cc('删除失败！');
         res.cc('删除成功！', 0)
     })
+}
+
+// 获取车辆结算数据的处理函数
+exports.getSettlementList = (req, res) => {
+    // 获取查询参数
+    const { plateNumber, carNumber, phone, status } = req.query;
+    let sql = "select * from access where is_delete=0";
+    if (plateNumber) {
+        sql += ` and plateNumber like concat("%${plateNumber}%")`;
+    } else if (carNumber) {
+        sql += ` and carNumber like concat("%${carNumber}%")`;
+    } else if (phone) {
+        sql += ` and phone like concat("%${phone}%")`;
+    } else if (status) {
+        sql += ` and status=${status}`;
+    }
+    // 查询车位表拿到所有车位的费用信息
+    let otherSql =
+        "select id, carNumber, chargeHour from vehicle where is_delete=0";
+    db.query(sql, (err, results1) => {
+        // 1. 执行 SQL 语句失败
+        if (err) return res.cc(err);
+        // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
+        if (results1.length === 0) return res.send({ status: 0, data: [] })
+        db.query(otherSql, (err, results2) => {
+            // 1. 执行 SQL 语句失败
+            if (err) return res.cc(err);
+            // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
+            // if (results.length === 0) return res.send({ status: 0, data: [] })
+            results1 = results1.map(item1 => {
+                const item2 = results2.find(item2 => item1.carNumber === item2.carNumber);
+                return item2 ? { ...item1, chargeHour: item2.chargeHour } : item1;
+            });
+            // 3. 将用户信息响应给客户端
+            res.send({
+                status: 0,
+                message: "获取成功！",
+                data: results1
+            });
+        })
+    });
+}
+
+// 车辆进行结算的处理函数
+exports.postSettlementDeparture = (req, res) => {
+    // 获取客户端提交到服务器的结算信息
+    const { leavingTime, duration, amount, id } = req.body;
+    // 定义更新车辆结算数据的 sql 语句
+    const sql = `update access set leavingTime=?, duration=?, amount=?, status=? where id=?`;
+    db.query(sql, [leavingTime, duration, amount, 1, id], (err, results) => {
+        // 1. 执行 SQL 语句失败
+        if (err) return res.cc(err);
+        // 执行 SQL 语句成功，但影响行数不为 1
+        if (results.affectedRows !== 1) return res.cc("结算失败！");
+        // 修改用户信息成功
+        return res.cc("结算成功！", 0);
+    });
 }
