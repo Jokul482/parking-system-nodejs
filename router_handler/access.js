@@ -63,26 +63,36 @@ exports.postAddVehicle = (req, res) => {
     // 获取客户端提交到服务器的车辆信息
     const carInfo = req.body;
     // 定义 SQL 语句，查询车牌号是否正在停车
-    const sqlStr = 'select * from access where carNumber=?';
+    const sqlStr = 'select * from access where is_delete=0 and carNumber=?';
     // 定义插入车辆的 sql 语句
-    const sql = 'insert into access set ?'
-    db.query(sqlStr, carInfo.carNumber, (err, results) => {
+    const sql = 'insert into access set ?';
+    // 定义该车位的每小时收费的 sql 语句
+    const chargeSql = `select id, carNumber, chargeHour from vehicle where is_delete=0`;
+    db.query(sqlStr, carInfo.carNumber, (err, results1) => {
         // 执行 sql 语句失败
         if (err) {
             return res.cc(err);
         }
         // 判断车牌号是否被占用
-        if (results.length > 0) {
+        if (results1.length > 0) {
             return res.cc('该车位已使用，请选择其它车位！')
         }
-        // 调用 db.query() 执行 sql 语句
-        db.query(sql, carInfo, (err, results) => {
+        db.query(chargeSql, (err, results2) => {
             // 判断 sql 语句是否执行成功
             if (err) return res.cc(err);
-            // 判断影响行数是否为 1
-            if (results.affectedRows !== 1) return res.cc('添加失败，请稍后再试！');
-            // 注册用户成功
-            res.cc('添加成功！', 0);
+            // 在 vehicle 表里找到对应的chargeHour字段
+            results2.forEach(item => {
+                return carInfo.chargeHour = item.carNumber == carInfo.carNumber ? item.chargeHour : null;
+            });
+            // 调用 db.query() 执行 sql 语句
+            db.query(sql, carInfo, (err, results) => {
+                // 判断 sql 语句是否执行成功
+                if (err) return res.cc(err);
+                // 判断影响行数是否为 1
+                if (results.affectedRows !== 1) return res.cc('添加失败，请稍后再试！');
+                // 注册用户成功
+                res.cc('添加成功！', 0);
+            })
         })
     })
 }
