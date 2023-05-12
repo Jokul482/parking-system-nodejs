@@ -18,5 +18,7 @@ router.get("/getVehicleInfo", vehicleHandler.getVehicleInfo)
 router.post("/postUpdateVehicleInfo", vehicleHandler.postUpdateVehicleInfo)
 // 删除车位数据的路由
 router.get("/deleteVehicleInfo/:id", vehicleHandler.deleteVehicleInfo)
+// 车位数据统计的路由
+router.get("/getStatisticsList", vehicleHandler.getStatisticsList)
 
 module.exports = router

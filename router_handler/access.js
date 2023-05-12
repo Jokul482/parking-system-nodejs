@@ -190,15 +190,19 @@ exports.getSettlementList = (req, res) => {
 // 车辆进行结算的处理函数
 exports.postSettlementDeparture = (req, res) => {
     // 获取客户端提交到服务器的结算信息
-    const { leavingTime, duration, amount, id } = req.body;
+    const { leavingTime, duration, amount, id, carNumber } = req.body;
     // 定义更新车辆结算数据的 sql 语句
     const sql = `update access set leavingTime=?, duration=?, amount=?, status=? where id=?`;
+    // 定义更新车位状态数据的 sql 语句
+    const vehicleSql = `update vehicle set status=? where carNumber=?`
     db.query(sql, [leavingTime, duration, amount, 1, id], (err, results) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);
-        // 执行 SQL 语句成功，但影响行数不为 1
-        if (results.affectedRows !== 1) return res.cc("结算失败！");
-        // 修改用户信息成功
-        return res.cc("结算成功！", 0);
+        db.query(vehicleSql, [1, carNumber], (err, results2) => {
+            // 执行 SQL 语句成功，但影响行数不为 1
+            if (results2.affectedRows !== 1) return res.cc("结算失败！");
+            // 修改用户信息成功
+            return res.cc("结算成功！", 0);
+        })
     });
 }
