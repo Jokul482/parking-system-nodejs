@@ -68,6 +68,8 @@ exports.postAddVehicle = (req, res) => {
     const sql = 'insert into access set ?';
     // 定义该车位的每小时收费的 sql 语句
     const chargeSql = `select id, carNumber, chargeHour from vehicle where is_delete=0`;
+    // 定义更新车位状态的 sql 语句
+    const vehicleSql = `update vehicle set status=? where carNumber=?`;
     db.query(sqlStr, carInfo.carNumber, (err, results1) => {
         // 执行 sql 语句失败
         if (err) {
@@ -84,14 +86,18 @@ exports.postAddVehicle = (req, res) => {
             results2.forEach(item => {
                 return carInfo.chargeHour = item.carNumber == carInfo.carNumber ? item.chargeHour : null;
             });
-            // 调用 db.query() 执行 sql 语句
-            db.query(sql, carInfo, (err, results) => {
+            db.query(vehicleSql, [2, carInfo.carNumber], (err) => {
                 // 判断 sql 语句是否执行成功
                 if (err) return res.cc(err);
-                // 判断影响行数是否为 1
-                if (results.affectedRows !== 1) return res.cc('添加失败，请稍后再试！');
-                // 注册用户成功
-                res.cc('添加成功！', 0);
+                // 调用 db.query() 执行 sql 语句
+                db.query(sql, carInfo, (err, results) => {
+                    // 判断 sql 语句是否执行成功
+                    if (err) return res.cc(err);
+                    // 判断影响行数是否为 1
+                    if (results.affectedRows !== 1) return res.cc('添加失败，请稍后再试！');
+                    // 注册用户成功
+                    res.cc('添加成功！', 0);
+                })
             })
         })
     })
