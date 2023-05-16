@@ -4,7 +4,7 @@ const db = require("../db/index");
 // 车辆列表的处理函数
 exports.getVehicleRegistrationList = (req, res) => {
     // 获取查询参数
-    const { plateNumber, carNumber, phone } = req.query;
+    const { plateNumber, carNumber, phone, status } = req.query;
     let sql = "select * from access where is_delete=0";
     if (plateNumber) {
         sql += ` and plateNumber like concat("%${plateNumber}%")`;
@@ -12,6 +12,8 @@ exports.getVehicleRegistrationList = (req, res) => {
         sql += ` and carNumber like concat("%${carNumber}%")`;
     } else if (phone) {
         sql += ` and phone like concat("%${phone}%")`;
+    } else if (status) {
+        sql += ` and status=${status}`;
     }
     // 查询车位表拿到所有车位的费用信息
     let otherSql =

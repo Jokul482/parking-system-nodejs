@@ -13,31 +13,20 @@ exports.getVehicleList = (req, res) => {// 获取查询参数
     } else if (status) {
         sql += ` and status=${status}`;
     }
-    // 查询车辆表拿到所有车辆的支付信息
-    let otherSql =
-    "select id, carNumber, status from access where is_delete=0";
+    // // 查询车辆表拿到所有车辆的支付信息
+    // let otherSql =
+    //     "select id, carNumber, status from access where is_delete=0";
     db.query(sql, (err, results1) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);
         // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
         if (results1.length === 0) return res.send({ status: 0, data: [] })
-        console.log(results1);
-        db.query(otherSql, (err, results2) => {
-            // 1. 执行 SQL 语句失败
-            if (err) return res.cc(err);
-            // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
-            // if (results2.length === 0) return res.send({ status: 0, data: [] })
-            results1 = results1.map(item1 => {
-                const item2 = results2.find(item2 => item1.carNumber === item2.carNumber);
-                return item2 ? { ...item1, status: item2.status == 1 ? 1 : 2 } : item1;
-            });
-            // 3. 将用户信息响应给客户端
-            res.send({
-                status: 0,
-                message: '获取成功！',
-                data: results1
-            });
-        })
+        // 3. 将用户信息响应给客户端
+        res.send({
+            status: 0,
+            message: '获取成功！',
+            data: results1
+        });
     });
 }
 
@@ -59,14 +48,14 @@ exports.postAddVehicle = (req, res) => {
             return res.cc('请勿添加重复车位！')
         }
         // 调用 db.query() 执行 sql 语句
-        db.query(sql, { 
+        db.query(sql, {
             carNumber: info.carNumber,
-            area: info.area, 
+            area: info.area,
             chargeHour: info.chargeHour,
             remarks: info.remarks,
             type: info.type,
             status: info.status
-         }, (err, results) => {
+        }, (err, results) => {
             // 判断 sql 语句是否执行成功
             if (err) return res.cc(err);
             // 判断影响行数是否为 1
@@ -142,6 +131,39 @@ exports.getStatisticsList = (req, res) => {
             status: 0,
             message: "获取成功！",
             data: results
+        });
+    });
+}
+
+// 车位数据统计数据的路由
+exports.getStatisticsData = (req, res) => {
+    let sql = "select id, carNumber, status from vehicle where is_delete=0";
+    db.query(sql, (err, results) => {
+        // 1. 执行 SQL 语句失败
+        if (err) return res.cc(err);
+        // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
+        if (results.length === 0) return res.send({ status: 0, data: [] })
+        // 3. 统计
+        let data = {
+            total: undefined,
+            inuse: "",
+            idle: ""
+        };
+        // 统计数组中有多少个carNumber
+        data.total = results.length;
+        // 分别统计status等于1或者等于2的数量
+        results.forEach(item => {
+            if (item.status == 1) {
+                data.idle++;
+            } else if (item.status == 2) {
+                data.inuse++;
+            }
+        });
+        // 4. 将车位信息响应给客户端
+        res.send({
+            status: 0,
+            message: "获取成功！",
+            data: data
         });
     });
 }
