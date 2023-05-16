@@ -24,5 +24,7 @@ router.post("/deleteRegistration/:id", registerHandler.deleteRegistration)
 router.get("/getSettlementList", registerHandler.getSettlementList)
 // 车辆进行结算的路由
 router.post("/postSettlementDeparture", registerHandler.postSettlementDeparture)
+// 收费统计列表的路由
+router.get("/getAccountCountList", registerHandler.getAccountCountList)
 
 module.exports = router

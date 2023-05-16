@@ -224,3 +224,40 @@ exports.postSettlementDeparture = (req, res) => {
         })
     });
 }
+
+// 收费统计列表的路由
+exports.getAccountCountList = (req, res) => {
+    // 获取查询参数
+    const { area, carNumber } = req.query;
+    let sql = "select * from access where is_delete=0";
+    if (area) {
+        sql += ` and area=${area}`;
+    } else if (carNumber) {
+        sql += ` and carNumber like concat("%${carNumber}%")`;
+    }
+    // 查询车位表拿到所有车位的区域信息
+    let cwSql =
+        "select * from vehicle where is_delete=0";
+    db.query(sql, (err, results1) => {
+        // 1. 执行 SQL 语句失败
+        if (err) return res.cc(err);
+        // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
+        if (results1.length === 0) return res.send({ status: 0, data: [] })
+        db.query(cwSql, (err, results2) => {
+            // 1. 执行 SQL 语句失败
+            if (err) return res.cc(err);
+            // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
+            if (results1.length === 0) return res.send({ status: 0, data: [] })
+            results1 = results1.map(item1 => {
+                const item2 = results2.find(item2 => item1.carNumber === item2.carNumber);
+                return item2 ? { ...item1, area: item2.area } : item1;
+            });
+            // 3. 将用户信息响应给客户端
+            res.send({
+                status: 0,
+                message: sql,
+                data: results1
+            });
+        })
+    })
+}
