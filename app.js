@@ -59,6 +59,10 @@ app.use('/my/access', accessRouter);
 const vehicleRouter = require('./router/vehicle')
 app.use('/my/vehicle', vehicleRouter);
 
+// 导入并使用收费统计的路由模块
+const chargeRouter = require('./router/charge')
+app.use('/my/charge', chargeRouter);
+
 
 // 错误中间件
 app.use(function (err, req, res, next) {
