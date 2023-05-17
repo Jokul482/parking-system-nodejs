@@ -99,13 +99,19 @@ exports.postUpdateVehicleInfo = (req, res) => {
 
 // 删除车位的处理函数
 exports.deleteVehicleInfo = (req, res) => {
+    // 定义查询车位数据的 SQL 语句
+    const vehicleSql = 'select * from vehicle where id=?';
     // 定义标记删除的 SQL 语句
-    const sql = 'update vehicle set is_delete=1 where id=?'
+    const sql = 'update vehicle set is_delete=1 where id=?';
     // 调用 db.query() 执行 SQL 语句
-    db.query(sql, req.params.id, (err, results) => {
+    db.query(vehicleSql, req.params.id, (err, results) => {
         if (err) return res.cc(err);
-        if (results.affectedRows !== 1) return res.cc('删除失败！');
-        res.cc('删除成功！', 0)
+        if (results[0].status === 2) return res.cc('该车位正在使用！');
+        db.query(sql, (err, results1) => {
+            if (err) return res.cc(err);
+            if (results1.affectedRows !== 1) return res.cc('删除失败！');
+            res.cc('删除成功！', 0)
+        })
     })
 }
 
