@@ -8,13 +8,16 @@ exports.getChargeList = (req, res) => {
     const { area, carNumber } = req.query;
     // 定义查询车辆数据的 sql 语句
     let sql = "select * from vehicle where is_delete=0";
-    if (area) {
-        sql += ` and area=${area}`;
-    } else if (carNumber) {
-        sql += ` and carNumber like concat("%${carNumber}%")`;
-    }
     // 定义查询停车量与收费的 SQL 语句
-    const ohterSql = 'select * from access where is_delete=0 and status=1'
+    const ohterSql = 'select * from access where is_delete=0 and status=1';
+    // 定义插入charge表数据的 SQL 语句
+    let insertSql = `INSERT INTO charge ( area, carNumber, type, parkQuantity, amount) VALUES `;
+    let selectSql = `SELECT DISTINCT area, carNumber, type, parkQuantity, amount FROM charge where 1=1`;
+    if (area) {
+        selectSql += ` and area like concat("%${area}%")`;
+    } else if (carNumber) {
+        selectSql += ` and carNumber like concat("%${carNumber}%")`;
+    } 
     db.query(sql, (err, results1) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);
@@ -28,14 +31,14 @@ exports.getChargeList = (req, res) => {
             results2 = results2.filter(item => item.leavingTime.slice(0, 10) === dayTime)
             if (results2.length === 0) return res.send({ status: 0, data: [] })
             /* 
-                1、创建一个空字典 carNumberDict，用于存储每个 carNumber 的总 amount 值和出现次数 stopNum。
+                1、创建一个空字典 carNumberDict，用于存储每个 carNumber 的总 amount 值和出现次数 parkQuantity。
                 2、遍历数组中的每个对象：
                     a. 获取当前对象的 carNumber 和 amount 值。
-                    b. 检查 carNumberDict 中是否已存在当前 carNumber，如果存在，则将当前 amount 值累加到已存在的 amount 值上，并将对应的 stopNum 值加一。
-                    c. 如果 carNumber 不存在于 carNumberDict 中，则在 carNumberDict 中添加一个新的键值对，其中键为当前 carNumber，值为一个字典，包含 amount 和 stopNum，并将 stopNum 设置为 1。
+                    b. 检查 carNumberDict 中是否已存在当前 carNumber，如果存在，则将当前 amount 值累加到已存在的 amount 值上，并将对应的 parkQuantity 值加一。
+                    c. 如果 carNumber 不存在于 carNumberDict 中，则在 carNumberDict 中添加一个新的键值对，其中键为当前 carNumber，值为一个字典，包含 amount 和 parkQuantity，并将 parkQuantity 设置为 1。
                 3、创建一个空数组 resultArr，用于存储处理后的对象。
                 4、遍历 carNumberDict 中的每个键值对，构造新的对象：
-                    a. 创建一个新的对象，复制当前键值对中的 carNumber、amount 和 stopNum。
+                    a. 创建一个新的对象，复制当前键值对中的 carNumber、amount 和 parkQuantity。
                     b. 将新对象添加到 resultArr 数组中。
                 5、返回 resultArr 数组作为结果。
             */
@@ -46,11 +49,11 @@ exports.getChargeList = (req, res) => {
                 let type = obj.type;
                 if (dict.hasOwnProperty(carNumber)) {
                     dict[carNumber].amount += amount;
-                    dict[carNumber].stopNum += 1;
+                    dict[carNumber].parkQuantity += 1;
                 } else {
                     dict[carNumber] = {
                         amount: amount,
-                        stopNum: 1,
+                        parkQuantity: 1,
                         area: area,
                         type: type
                     };
@@ -61,17 +64,33 @@ exports.getChargeList = (req, res) => {
                 return {
                     carNumber: carNumber,
                     amount: carNumberDict[carNumber].amount,
-                    stopNum: carNumberDict[carNumber].stopNum,
+                    parkQuantity: carNumberDict[carNumber].parkQuantity,
                     area: carNumberDict[carNumber].area,
                     type: carNumberDict[carNumber].type
                 };
             });
-            // 3. 将用户信息响应给客户端
-            res.send({
-                status: 0,
-                message: "获取成功！",
-                data: results1
+
+            // 插入数据
+            results1.forEach((obj) => {
+                insertSql += `( '${obj.area}', '${obj.carNumber}', ${obj.type}, ${obj.parkQuantity}, ${obj.amount} ),`
             });
+            insertSql = insertSql.slice(-1) === ',' ? insertSql.slice(0, -1) + ';' : insertSql;
+            db.query(insertSql, (err) => {
+                // 1. 执行 SQL 语句失败
+                if (err) return res.cc(err);
+                db.query(selectSql, (err, results4) => {
+                    // 1. 执行 SQL 语句失败
+                    if (err) return res.cc(err);
+                    // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
+                    if (results4.length === 0) return res.send({ status: 0, data: [] })
+                    // 3. 将用户信息响应给客户端
+                    res.send({
+                        status: 0,
+                        message: "获取成功！",
+                        data: results4
+                    });
+                })
+            })
         })
     })
 }
