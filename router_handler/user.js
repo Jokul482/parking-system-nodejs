@@ -53,7 +53,7 @@ exports.login = (req, res) => {
     // 接收表单数据：
     const userinfo = req.body;
     // 定义 SQL 语句：
-    const sql = `select * from ev_users where username=?`;
+    const sql = `select * from ev_users where is_delete=0 and username=?`;
     // 执行 SQL 语句，查询用户的数据：
     db.query(sql, userinfo.username, function (err, results) {
         // 执行 SQL 语句失败

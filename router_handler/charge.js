@@ -60,7 +60,6 @@ exports.getChargeList = (req, res) => {
                 }
                 return dict;
             }, {});
-            console.log(carNumberDict);
             results1 = Object.keys(carNumberDict).map(carNumber => {
                 return {
                     carNumber: carNumber,

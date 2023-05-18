@@ -12,10 +12,8 @@ exports.getUserList = (req, res) => {
     const { role_type, username } = req.query;
     let sql =
         "select id, role_type, username, nickname, email, user_pic from ev_users where is_delete=0";
-    if (username && role_type) {
-        sql += ` and username like concat('%',${username},'%') and role_type=${role_type}`;
-    } else if (username) {
-        sql += ` and username like concat('%',${username},'%')`;
+    if (username) {
+        sql += ` and username like concat("%${username}%")`;
     } else if (role_type) {
         sql += ` and role_type=${role_type}`;
     }

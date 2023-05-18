@@ -27,7 +27,7 @@ exports.getVehicleRegistrationList = (req, res) => {
             if (err) return res.cc(err);
             results1 = results1.map(item1 => {
                 const item2 = results2.find(item2 => item1.carNumber === item2.carNumber);
-                return item2 ? { ...item1, chargeHour: item2.chargeHour, type: item2.type } : item1;
+                return item2 ? { ...item1, chargeHour: item2.chargeHour } : item1;
             });
             // 3. 将用户信息响应给客户端
             res.send({
@@ -71,7 +71,7 @@ exports.postAddVehicle = (req, res) => {
     // 定义插入车辆的 sql 语句
     const sql = 'insert into access set ?';
     // 定义该车位的每小时收费的 sql 语句
-    const chargeSql = `select id, carNumber, chargeHour from vehicle where is_delete=0`;
+    const chargeSql = `select id, carNumber, chargeHour, type from vehicle where is_delete=0`;
     // 定义更新车位状态的 sql 语句
     const vehicleSql = `update vehicle set status=? where carNumber=?`;
     db.query(chargeSql, (err, results2) => {
@@ -79,7 +79,8 @@ exports.postAddVehicle = (req, res) => {
         if (err) return res.cc(err);
         // 在 vehicle 表里找到对应的chargeHour字段
         results2.forEach(item => {
-            return carInfo.chargeHour = item.carNumber == carInfo.carNumber ? item.chargeHour : null;
+            carInfo.chargeHour = item.carNumber == carInfo.carNumber ? item.chargeHour : null;
+            return carInfo.type = item.carNumber == carInfo.carNumber ? item.type : null;
         });
         db.query(vehicleSql, [2, carInfo.carNumber], (err) => {
             // 判断 sql 语句是否执行成功
