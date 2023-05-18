@@ -23,7 +23,7 @@ exports.getVehicleRegistrationList = (req, res) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);
         // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
-        if (results1.length === 0) return res.send({ status: 0, data: [], total: results1.length || 0 })
+        if (results1.length === 0) return res.send({ status: 0, data: [], total: results1.length })
         db.query(otherSql, (err, results2) => {
             if (err) return res.cc(err);
             results1 = results1.map(item1 => {
@@ -34,12 +34,12 @@ exports.getVehicleRegistrationList = (req, res) => {
                 // 1. 执行 SQL 语句失败
                 if (err) return res.cc(err);
                 // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
-                if (results3.length === 0) return res.send({ status: 0, data: [], total: results3.length || 0 })
+                if (results3.length === 0) return res.send({ status: 0, data: [], total: results3.length })
                 res.send({
                     status: 0,
                     message: "获取成功！",
                     data: results1,
-                    total: results3.length || 0
+                    total: results3.length
                 });
             })
         })
@@ -191,7 +191,7 @@ exports.getSettlementList = (req, res) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);
         // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
-        if (results1.length === 0) return res.send({ status: 0, data: [], total: results1.length || 0 })
+        if (results1.length === 0) return res.send({ status: 0, data: [], total: results1.length })
         db.query(otherSql, (err, results2) => {
             // 1. 执行 SQL 语句失败
             if (err) return res.cc(err);
@@ -205,12 +205,12 @@ exports.getSettlementList = (req, res) => {
                 // 1. 执行 SQL 语句失败
                 if (err) return res.cc(err);
                 // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
-                if (results3.length === 0) return res.send({ status: 0, data: [], total: results3.length || 0 })
+                if (results3.length === 0) return res.send({ status: 0, data: [], total: results3.length })
                 res.send({
                     status: 0,
                     message: "获取成功！",
                     data: results1,
-                    total: results3.length || 0
+                    total: results3.length
                 });
             })
         })

@@ -81,13 +81,13 @@ exports.getChargeList = (req, res) => {
                     // 1. 执行 SQL 语句失败
                     if (err) return res.cc(err);
                     // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
-                    if (results4.length === 0) return res.send({ status: 0, data: [], total: results4.length || 0 })
+                    if (results4.length === 0) return res.send({ status: 0, data: [], total: results4.length })
                     // 3. 将用户信息响应给客户端
                     res.send({
                         status: 0,
                         message: "获取成功！",
                         data: results4,
-                        total: results4.length || 0
+                        total: results4.length
                     });
                 })
             })

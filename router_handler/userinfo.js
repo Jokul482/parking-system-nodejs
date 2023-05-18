@@ -18,22 +18,22 @@ exports.getUserList = (req, res) => {
         sql += ` and role_type=${role_type}`;
     }
     let otherSql = `select * from ev_users where is_delete=0 limit ${pageNum - 1},${pageSize};`
-    db.query(otherSql, (err, results1) => {
+    db.query(sql, (err, results1) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);
         // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
-        if (results1.length === 0) return res.send({ status: 0,data: [], total: results1.length || 0 })
-        db.query(sql, (err, results2) => {
+        if (results1.length === 0) return res.send({ status: 0,data: [], total: results1.length })
+        db.query(otherSql, (err, results2) => {
             // 1. 执行 SQL 语句失败
             if (err) return res.cc(err);
             // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
-            if (results2.length === 0) return res.send({ status: 0,data: [], total: results2.length || 0 })
+            if (results2.length === 0) return res.send({ status: 0,data: [], total: results2.length })
             // 3. 将用户信息响应给客户端
             res.send({
                 status: 0,
                 message: "获取成功！",
                 data: results1,
-                total: results2.length || 0
+                total: results2.length
             });
         });
     });
