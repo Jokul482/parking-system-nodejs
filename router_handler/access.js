@@ -4,7 +4,7 @@ const db = require("../db/index");
 // 车辆列表的处理函数
 exports.getVehicleRegistrationList = (req, res) => {
     // 获取查询参数
-    const { plateNumber, carNumber, phone, status } = req.query;
+    const { plateNumber, carNumber, phone, status, pageNum, pageSize } = req.query;
     let sql = "select * from access where is_delete=0";
     if (plateNumber) {
         sql += ` and plateNumber like concat("%${plateNumber}%")`;
@@ -18,24 +18,30 @@ exports.getVehicleRegistrationList = (req, res) => {
     // 查询车位表拿到所有车位的费用信息
     let otherSql =
         "select id, carNumber, chargeHour, type from vehicle where is_delete=0";
+    let pagingSql = `select * from access where is_delete=0 limit ${pageNum - 1},${pageSize};`
     db.query(sql, (err, results1) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);
         // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
-        if (results1.length === 0) return res.send({ status: 0, data: [] })
+        if (results1.length === 0) return res.send({ status: 0, data: [], total: results1.length || 0 })
         db.query(otherSql, (err, results2) => {
             if (err) return res.cc(err);
             results1 = results1.map(item1 => {
                 const item2 = results2.find(item2 => item1.carNumber === item2.carNumber);
                 return item2 ? { ...item1, chargeHour: item2.chargeHour } : item1;
             });
-            // 3. 将用户信息响应给客户端
-            res.send({
-                status: 0,
-                message: "获取成功！",
-                data: results1,
-                total: results1.length
-            });
+            db.query(pagingSql, (err, results3) => {
+                // 1. 执行 SQL 语句失败
+                if (err) return res.cc(err);
+                // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
+                if (results3.length === 0) return res.send({ status: 0, data: [], total: results3.length || 0 })
+                res.send({
+                    status: 0,
+                    message: "获取成功！",
+                    data: results1,
+                    total: results3.length || 0
+                });
+            })
         })
     });
 }
@@ -166,7 +172,7 @@ exports.deleteRegistration = (req, res) => {
 // 获取车辆结算数据的处理函数
 exports.getSettlementList = (req, res) => {
     // 获取查询参数
-    const { plateNumber, carNumber, phone, status } = req.query;
+    const { plateNumber, carNumber, phone, status, pageNum, pageSize } = req.query;
     let sql = "select * from access where is_delete=0";
     if (plateNumber) {
         sql += ` and plateNumber like concat("%${plateNumber}%")`;
@@ -180,11 +186,12 @@ exports.getSettlementList = (req, res) => {
     // 查询车位表拿到所有车位的费用信息
     let otherSql =
         "select id, carNumber, chargeHour from vehicle where is_delete=0";
+    let pagingSql = `select * from access where is_delete=0 limit ${pageNum - 1},${pageSize};`
     db.query(sql, (err, results1) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);
         // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
-        if (results1.length === 0) return res.send({ status: 0, data: [] })
+        if (results1.length === 0) return res.send({ status: 0, data: [], total: results1.length || 0 })
         db.query(otherSql, (err, results2) => {
             // 1. 执行 SQL 语句失败
             if (err) return res.cc(err);
@@ -194,13 +201,18 @@ exports.getSettlementList = (req, res) => {
                 const item2 = results2.find(item2 => item1.carNumber === item2.carNumber);
                 return item2 ? { ...item1, chargeHour: item2.chargeHour } : item1;
             });
-            // 3. 将用户信息响应给客户端
-            res.send({
-                status: 0,
-                message: "获取成功！",
-                data: results1,
-                total: results1.length
-            });
+            db.query(pagingSql, (err, results3) => {
+                // 1. 执行 SQL 语句失败
+                if (err) return res.cc(err);
+                // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
+                if (results3.length === 0) return res.send({ status: 0, data: [], total: results3.length || 0 })
+                res.send({
+                    status: 0,
+                    message: "获取成功！",
+                    data: results1,
+                    total: results3.length || 0
+                });
+            })
         })
     });
 }
