@@ -9,25 +9,32 @@ const bcrypt = require("bcryptjs");
 exports.getUserList = (req, res) => {
     // 根据用户的角色类型及用户名，查询所有用户信息
     // 注意：为了防止用户的密码泄露，需要排除 password 字段  like `+"'%"+"?"+"%'"
-    const { role_type, username } = req.query;
+    const { role_type, username, pageNum, pageSize } = req.query;
     let sql =
-        "select id, role_type, username, nickname, email, user_pic from ev_users where is_delete=0";
+        "select * from ev_users where is_delete=0";
     if (username) {
         sql += ` and username like concat("%${username}%")`;
     } else if (role_type) {
         sql += ` and role_type=${role_type}`;
     }
-    db.query(sql, (err, results) => {
+    let otherSql = `select * from ev_users where is_delete=0 limit ${pageNum - 1},${pageSize};`
+    db.query(otherSql, (err, results1) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);
         // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
-        if (results.length === 0) return res.send({ status: 0,data: [] })
-        // 3. 将用户信息响应给客户端
-        res.send({
-            status: 0,
-            message: "获取成功！",
-            data: results,
-            total: results.length
+        if (results1.length === 0) return res.send({ status: 0,data: [] })
+        db.query(sql, (err, results2) => {
+            // 1. 执行 SQL 语句失败
+            if (err) return res.cc(err);
+            // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
+            if (results2.length === 0) return res.send({ status: 0,data: [] })
+            // 3. 将用户信息响应给客户端
+            res.send({
+                status: 0,
+                message: "获取成功！",
+                data: results1,
+                total: results2.length
+            });
         });
     });
 };
