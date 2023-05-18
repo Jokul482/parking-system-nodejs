@@ -86,7 +86,8 @@ exports.getChargeList = (req, res) => {
                     res.send({
                         status: 0,
                         message: "获取成功！",
-                        data: results4
+                        data: results4,
+                        total: results4.length
                     });
                 })
             })

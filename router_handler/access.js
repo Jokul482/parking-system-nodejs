@@ -33,7 +33,8 @@ exports.getVehicleRegistrationList = (req, res) => {
             res.send({
                 status: 0,
                 message: "获取成功！",
-                data: results1
+                data: results1,
+                total: results1.length
             });
         })
     });
@@ -197,7 +198,8 @@ exports.getSettlementList = (req, res) => {
             res.send({
                 status: 0,
                 message: "获取成功！",
-                data: results1
+                data: results1,
+                total: results1.length
             });
         })
     });

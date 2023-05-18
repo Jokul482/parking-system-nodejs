@@ -26,7 +26,8 @@ exports.getUserList = (req, res) => {
         res.send({
             status: 0,
             message: "获取成功！",
-            data: results
+            data: results,
+            total: results.length
         });
     });
 };
