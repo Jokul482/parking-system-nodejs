@@ -12,12 +12,16 @@ exports.getUserList = (req, res) => {
     const { role_type, username, pageNum, pageSize } = req.query;
     let sql =
         "select * from ev_users where is_delete=0";
+    let otherSql = `select * from ev_users where is_delete=0`;
     if (username) {
         sql += ` and username like concat("%${username}%")`;
+        otherSql += ` and username like concat("%${username}%")`;
     } else if (role_type) {
         sql += ` and role_type=${role_type}`;
+        otherSql += ` and role_type=${role_type}`;
     }
-    let otherSql = `select * from ev_users where is_delete=0 limit ${pageNum - 1},${pageSize};`
+    // sql 分页
+    sql = sql + ` limit ${pageSize} offset ${pageSize * (pageNum - 1)}`;
     db.query(sql, (err, results1) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);
