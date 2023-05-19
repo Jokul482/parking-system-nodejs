@@ -6,14 +6,19 @@ exports.getVehicleList = (req, res) => {// 获取查询参数
     const { area, carNumber, status, pageNum, pageSize } = req.query;
     let sql =
         "select * from vehicle where is_delete=0";
+    let pagingSql = `select * from vehicle where is_delete=0`;
     if (area) {
         sql += ` and area=${area}`;
+        pagingSql += ` and area=${area}`;
     } else if (carNumber) {
         sql += ` and carNumber like "%${carNumber}%"`;
+        pagingSql += ` and carNumber like "%${carNumber}%"`;
     } else if (status) {
         sql += ` and status=${status}`;
+        pagingSql += ` and status=${status}`;
     }
-    let pagingSql = `select * from vehicle where is_delete=0 limit ${pageNum - 1},${pageSize};`
+    // sql 分页
+    sql = sql + ` limit ${pageSize} offset ${pageSize * (pageNum - 1)}`;
     db.query(sql, (err, results1) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);
@@ -124,14 +129,19 @@ exports.getStatisticsList = (req, res) => {
     const { area, carNumber, status, pageNum, pageSize } = req.query;
     let sql =
         "select * from vehicle where is_delete=0";
+    let pagingSql = `select * from vehicle where is_delete=0`;
     if (area) {
         sql += ` and area=${area}`;
+        pagingSql += ` and area=${area}`;
     } else if (carNumber) {
         sql += ` and carNumber like "%${carNumber}%"`;
+        pagingSql += ` and carNumber like "%${carNumber}%"`;
     } else if (status) {
         sql += ` and status=${status}`;
+        pagingSql += ` and status=${status}`;
     }
-    let pagingSql = `select * from vehicle where is_delete=0 limit ${pageNum - 1},${pageSize};`
+    // sql 分页
+    sql = sql + ` limit ${pageSize} offset ${pageSize * (pageNum - 1)}`;
     db.query(sql, (err, results1) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);

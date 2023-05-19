@@ -5,19 +5,26 @@ const { timeTransformation } = require("../utils/general");
 // 收费统计列表的路由
 exports.getChargeList = (req, res) => {
     // 获取查询参数
-    const { area, carNumber } = req.query;
+    const { area, carNumber, pageNum, pageSize } = req.query;
     // 定义查询车辆数据的 sql 语句
     let sql = "select * from vehicle where is_delete=0";
     // 定义查询停车量与收费的 SQL 语句
     const ohterSql = 'select * from access where is_delete=0 and status=1';
     // 定义插入charge表数据的 SQL 语句
     let insertSql = `INSERT INTO charge ( area, carNumber, type, parkQuantity, todayCharge) VALUES `;
+    // 定义去重及查询area表数据的 SQL 语句
     let selectSql = `SELECT DISTINCT area, carNumber, type, parkQuantity, todayCharge FROM charge where 1=1`;
+    // 定义去重及查询area表数据的 SQL 语句
+    let allSelectSql = `SELECT DISTINCT area, carNumber, type, parkQuantity, todayCharge FROM charge where 1=1`;
     if (area) {
         selectSql += ` and area like concat("%${area}%")`;
+        allSelectSql += ` and area like concat("%${area}%")`;
     } else if (carNumber) {
         selectSql += ` and carNumber like concat("%${carNumber}%")`;
+        allSelectSql += ` and carNumber like concat("%${carNumber}%")`;
     }
+    // sql 分页
+    selectSql = selectSql + ` limit ${pageSize} offset ${pageSize * (pageNum - 1)}`;
     db.query(sql, (err, results1) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);
@@ -82,13 +89,19 @@ exports.getChargeList = (req, res) => {
                     if (err) return res.cc(err);
                     // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
                     if (results4.length === 0) return res.send({ status: 0, data: [], total: results4.length })
-                    // 3. 将用户信息响应给客户端
-                    res.send({
-                        status: 0,
-                        message: "获取成功！",
-                        data: results4,
-                        total: results4.length
-                    });
+                    db.query(allSelectSql, (err, results5) => {
+                        // 1. 执行 SQL 语句失败
+                        if (err) return res.cc(err);
+                        // 2. 执行 SQL 语句成功，但是查询到的数据条数等于0
+                        if (results5.length === 0) return res.send({ status: 0, data: [], total: results5.length })
+                        // 3. 将用户信息响应给客户端
+                        res.send({
+                            status: 0,
+                            message: "获取成功！",
+                            data: results4,
+                            total: results5.length
+                        });
+                    })
                 })
             })
         })

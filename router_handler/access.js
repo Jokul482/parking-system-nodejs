@@ -6,19 +6,25 @@ exports.getVehicleRegistrationList = (req, res) => {
     // 获取查询参数
     const { plateNumber, carNumber, phone, status, pageNum, pageSize } = req.query;
     let sql = "select * from access where is_delete=0";
+    let pagingSql = `select * from access where is_delete=0`;
     if (plateNumber) {
         sql += ` and plateNumber like concat("%${plateNumber}%")`;
+        pagingSql += ` and plateNumber like concat("%${plateNumber}%")`;
     } else if (carNumber) {
         sql += ` and carNumber like concat("%${carNumber}%")`;
+        pagingSql += ` and carNumber like concat("%${carNumber}%")`;
     } else if (phone) {
         sql += ` and phone like concat("%${phone}%")`;
+        pagingSql += ` and phone like concat("%${phone}%")`;
     } else if (status) {
         sql += ` and status=${status}`;
+        pagingSql += ` and status=${status}`;
     }
     // 查询车位表拿到所有车位的费用信息
     let otherSql =
         "select id, carNumber, chargeHour, type from vehicle where is_delete=0";
-    let pagingSql = `select * from access where is_delete=0 limit ${pageNum - 1},${pageSize};`
+    // sql 分页
+    sql = sql + ` limit ${pageSize} offset ${pageSize * (pageNum - 1)}`;
     db.query(sql, (err, results1) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);
@@ -174,19 +180,25 @@ exports.getSettlementList = (req, res) => {
     // 获取查询参数
     const { plateNumber, carNumber, phone, status, pageNum, pageSize } = req.query;
     let sql = "select * from access where is_delete=0";
+    let pagingSql = `select * from access where is_delete=0`;
     if (plateNumber) {
         sql += ` and plateNumber like concat("%${plateNumber}%")`;
+        pagingSql += ` and plateNumber like concat("%${plateNumber}%")`;
     } else if (carNumber) {
         sql += ` and carNumber like concat("%${carNumber}%")`;
+        pagingSql += ` and carNumber like concat("%${carNumber}%")`;
     } else if (phone) {
         sql += ` and phone like concat("%${phone}%")`;
+        pagingSql += ` and phone like concat("%${phone}%")`;
     } else if (status) {
         sql += ` and status=${status}`;
+        pagingSql += ` and status=${status}`;
     }
     // 查询车位表拿到所有车位的费用信息
     let otherSql =
         "select id, carNumber, chargeHour from vehicle where is_delete=0";
-    let pagingSql = `select * from access where is_delete=0 limit ${pageNum - 1},${pageSize};`
+    // sql 分页
+    sql = sql + ` limit ${pageSize} offset ${pageSize * (pageNum - 1)}`
     db.query(sql, (err, results1) => {
         // 1. 执行 SQL 语句失败
         if (err) return res.cc(err);
