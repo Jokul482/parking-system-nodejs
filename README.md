@@ -1,6 +1,7 @@
 ﻿# 停车场收费统计管理系统
 ## 项目简介
-**本项目修改自开源教程**[黑马程序员Node.js全套](https://www.bilibili.com/video/BV1a34y167AZ?p=1)
+**本项目修改自开源教程**[黑马程序员Node.js全套入门教程](https://www.bilibili.com/video/BV1a34y167AZ?p=1)
+
 本项目采用B/S架构，前端使用Vue.js 2.6框架搭配Element UI组件库，后端则依托Node.js及Express技术栈，实现了一个全面覆盖车辆进出管理、车位信息管理、收费统计与用户权限控制的综合性平台。本项目旨在为学生、开发者提供一个实践Node.js、Vue.js及全栈开发技能的学习样本。
 ## 功能特性
 ### 核心功能
