@@ -18,11 +18,11 @@
 - **事件驱动服务端**：Node.js事件驱动架构，保证高性能、低延迟的后台服务。
 - **B/S架构**：简化部署，用户只需浏览器即可使用，降低使用成本。
 ## 安装与运行
-1.环境准备：Node.js、MySQL及其前端环境
-2.克隆代码：git clone项目地址`
-3.依赖：npm install
-4.配置数据库：参见项目中.sql文件及db文件夹
-5.启动：node app.js或者nodemon app.js **建议使用nodemon，热更新**
+1. 环境准备：Node.js、MySQL及其前端环境
+2. 克隆代码：git clone项目地址`
+3. 依赖：npm install
+4. 配置数据库：参见项目中.sql文件及db文件夹
+5. 启动：node app.js或者nodemon app.js **建议使用nodemon，热更新**
 > 项目已包含详尽的配置说明与示例代码注释，便于快速上手与理解。
 ## 注意事项
 - **学习交流**：本项目适合Node.js、Vue.js初学者及全栈开发爱好者学习交流。
